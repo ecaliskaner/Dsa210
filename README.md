@@ -7,6 +7,7 @@ Traffic congestion is a major issue in Istanbul, impacting daily life, commute t
 - **Weather Data**: [Meteostat Istanbul Weather Data](https://meteostat.net/en/station/17060?t=2025-04-11/2025-04-18&utm_source=chatgpt.com#google_vignette)  
 - **Traffic Data**: [Istanbul Traffic Index (IBB)](https://data.ibb.gov.tr/en/dataset/istanbul-trafik-indeksi/resource/ba47eacb-a4e1-441c-ae51-0e622d4a18e2)
 - **For Organizing**: [ChatGPT](https://chatgpt.com)
+- **Help for Coding**:[Cursor](https://www.cursor.com/)
 
 ## Data Collection & Processing  
 - Weather data (temperature, precipitation, wind speed) will be collected daily/hourly.  
