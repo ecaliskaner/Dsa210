@@ -1,6 +1,6 @@
 # Weather Impact on Istanbul Traffic Analysis
 # Description: This script analyzes the relationship between weather conditions
-#              and traffic patterns in Istanbul using various data science techniques.
+# and traffic patterns in Istanbul using various data science techniques.
 
 import pandas as pd
 import numpy as np
@@ -15,6 +15,93 @@ from sklearn.svm import SVR
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error, explained_variance_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
+
+# Define visualization functions before model training
+def plot_combined_weather_effects():
+    """Visualize the combined effects of weather conditions on traffic in 3D"""
+    # Create a single figure for 3D visualization
+    fig = plt.figure(figsize=(12, 8))
+    ax3d = fig.add_subplot(111, projection='3d')
+    
+    # Create 3D scatter plot
+    scatter = ax3d.scatter(df['temperature_avg'],
+                          df['wind_speed_kmh'],
+                          df['average_traffic_index'],
+                          c=df['precipitation_mm'],
+                          cmap='YlOrRd',
+                          alpha=0.6,
+                          s=50)  # Increased marker size
+    
+    # Customize the plot
+    ax3d.set_xlabel('Temperature (°C)', labelpad=10)
+    ax3d.set_ylabel('Wind Speed (km/h)', labelpad=10)
+    ax3d.set_zlabel('Traffic Index', labelpad=10)
+    ax3d.set_title('3D Weather Effects on Traffic', pad=20, size=14)
+    
+    # Add color bar
+    cbar = plt.colorbar(scatter)
+    cbar.set_label('Precipitation (mm)', rotation=270, labelpad=15)
+    
+    # Rotate the view for better visualization
+    ax3d.view_init(elev=20, azim=45)
+    
+    # Add grid
+    ax3d.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    plt.show()
+
+def plot_feature_importance():
+    """Visualize feature importance from different models"""
+    # Prepare feature names
+    feature_names = weather_factors + ['is_weekend', 'is_rainy', 
+                                     'rain_temperature_interaction',
+                                     'rain_wind_interaction',
+                                     'weekend_rain_interaction']
+    
+    # Get feature importance from Random Forest
+    rf_importance = rf_grid.best_estimator_.feature_importances_
+    
+    # Get feature importance from Gradient Boosting
+    gb_importance = gb_grid.best_estimator_.feature_importances_
+    
+    # Get coefficients from Linear Regression (standardized)
+    lr = LinearRegression()
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    lr.fit(X_scaled, y)
+    lr_importance = np.abs(lr.coef_)
+    
+    # Create comparison plot
+    plt.figure(figsize=(12, 6))
+    x = np.arange(len(feature_names))
+    width = 0.25
+    
+    plt.bar(x - width, rf_importance, width, label='Random Forest', alpha=0.7)
+    plt.bar(x, gb_importance, width, label='Gradient Boosting', alpha=0.7)
+    plt.bar(x + width, lr_importance / lr_importance.max(), width, 
+            label='Linear Regression (Normalized)', alpha=0.7)
+    
+    plt.xlabel('Features')
+    plt.ylabel('Importance Score')
+    plt.title('Feature Importance Comparison Across Models')
+    plt.xticks(x, feature_names, rotation=45, ha='right')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.show()
+    
+    # Print numerical feature importance
+    print("\nFeature Importance Rankings:")
+    importance_data = {
+        'Random Forest': rf_importance,
+        'Gradient Boosting': gb_importance,
+        'Linear Regression': lr_importance / lr_importance.max()
+    }
+    
+    importance_df = pd.DataFrame(importance_data, index=feature_names)
+    print("\nAverage Feature Importance Across Models:")
+    print(importance_df.mean(axis=1).sort_values(ascending=False).round(3))
 
 # Step 1: Data Import and Preprocessing
 # Load weather and traffic data from CSV files
@@ -296,11 +383,227 @@ t_stat, p_val = ttest_ind(rainy_traffic, non_rainy_traffic)
 print(f"T-statistic: {t_stat:.2f}")
 print(f"P-value: {p_val:.5f}")
 
-# Visualize time series patterns
+# First figure: Time series
 plt.figure(figsize=(15, 6))
-sns.lineplot(data=df, x='date', y='average_traffic_index', hue='is_rainy', alpha=0.6)
+# Filter data to start from when precipitation data is available and after May 28, 2022
+df_clean = df.dropna(subset=['precipitation_mm'])
+df_clean = df_clean[df_clean['date'] >= '2022-05-28']
+sns.lineplot(data=df_clean, x='date', y='average_traffic_index', 
+             hue='is_rainy', alpha=0.6)
 plt.title('Traffic Index Over Time - Rainy vs Non-Rainy Days')
-plt.xticks(rotation=45)
+plt.xlabel('Date')
+plt.ylabel('Traffic Index')
 plt.legend(title='Is Rainy', labels=['No Rain', 'Rain'])
+plt.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.show()
+
+# After the time series plot and before the distribution plot, add:
+print("\n=== Hypothesis Testing ===")
+print("Null Hypothesis (H0): There is no significant difference in traffic index between rainy and non-rainy days")
+print("Alternative Hypothesis (H1): There is a significant difference in traffic index between rainy and non-rainy days")
+print("\nTest Method: Independent Two-Sample T-Test")
+print(f"Sample Size:")
+print(f"- Rainy days: {len(rainy_traffic)}")
+print(f"- Non-rainy days: {len(non_rainy_traffic)}")
+print(f"\nDescriptive Statistics:")
+print(f"- Rainy days mean: {rainy_traffic.mean():.2f} ± {rainy_traffic.std():.2f} (SD)")
+print(f"- Non-rainy days mean: {non_rainy_traffic.mean():.2f} ± {non_rainy_traffic.std():.2f} (SD)")
+print(f"\nTest Results:")
+print(f"- T-statistic: {t_stat:.2f}")
+print(f"- P-value: {p_val:.10f}")
+print(f"- Mean difference: {rainy_traffic.mean() - non_rainy_traffic.mean():.2f}")
+print("\nConclusion:")
+if p_val < 0.05:
+    print("Reject the null hypothesis (p < 0.05)")
+    print("There is strong statistical evidence that rain significantly affects traffic patterns")
+else:
+    print("Fail to reject the null hypothesis (p >= 0.05)")
+    print("There is not enough statistical evidence to conclude that rain affects traffic patterns")
+
+# Create visualization of hypothesis test results
+plt.figure(figsize=(15, 6))
+
+# Create kernel density estimation for both distributions
+rainy_kde = sns.kdeplot(data=rainy_traffic, label='Rainy Days', 
+                        color='red', linewidth=2)
+non_rainy_kde = sns.kdeplot(data=non_rainy_traffic, label='Non-Rainy Days', 
+                           color='blue', linewidth=2)
+
+# Add vertical lines for means
+plt.axvline(x=rainy_traffic.mean(), color='red', linestyle='--', alpha=0.5,
+            label=f'Rainy Mean: {rainy_traffic.mean():.2f}')
+plt.axvline(x=non_rainy_traffic.mean(), color='blue', linestyle='--', alpha=0.5,
+            label=f'Non-Rainy Mean: {non_rainy_traffic.mean():.2f}')
+
+# Add significance annotation
+if p_val < 0.05:
+    y_max = plt.gca().get_ylim()[1]
+    plt.text(0.5 * (rainy_traffic.mean() + non_rainy_traffic.mean()), y_max * 0.95,
+             f'p = {p_val:.2e}', ha='center')
+    if p_val < 0.001:
+        sig_text = '***'
+    elif p_val < 0.01:
+        sig_text = '**'
+    else:
+        sig_text = '*'
+    plt.text(0.5 * (rainy_traffic.mean() + non_rainy_traffic.mean()), y_max * 0.9,
+             sig_text, ha='center', fontsize=12)
+
+plt.title(f'Traffic Distribution: Rainy vs Non-Rainy Days\nT-statistic: {t_stat:.2f}, p-value: {p_val:.2e}')
+plt.xlabel('Traffic Index')
+plt.ylabel('Density')
+plt.grid(True, alpha=0.3)
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# Step 6: Future Prediction Functionality
+print("\n=== Future Traffic Prediction ===")
+
+def prepare_prediction_features(weather_forecast):
+    """
+    Prepare features for prediction from weather forecast data
+    
+    Parameters:
+    weather_forecast: DataFrame with columns:
+        - date
+        - temperature_avg
+        - precipitation_mm
+        - wind_speed_kmh
+        - pressure_hpa
+    
+    Returns:
+    Prepared feature matrix ready for prediction
+    """
+    X_pred = weather_forecast[weather_factors].copy()
+    X_pred['is_weekend'] = weather_forecast['date'].dt.dayofweek.isin([5, 6])
+    X_pred['is_rainy'] = weather_forecast['precipitation_mm'] > 0
+    X_pred['rain_temperature_interaction'] = X_pred['is_rainy'] * X_pred['temperature_avg']
+    X_pred['rain_wind_interaction'] = X_pred['is_rainy'] * X_pred['wind_speed_kmh']
+    X_pred['weekend_rain_interaction'] = X_pred['is_weekend'].astype(int) * X_pred['is_rainy']
+    return X_pred
+
+def predict_traffic(weather_forecast, model=None, scaler=None):
+    """
+    Predict traffic index based on weather forecast
+    
+    Parameters:
+    weather_forecast: DataFrame with weather forecast data
+    model: Trained model (if None, uses the tuned Gradient Boosting model)
+    scaler: Fitted StandardScaler (if None, uses the existing scaler)
+    
+    Returns:
+    DataFrame with predictions and confidence intervals
+    """
+    if model is None:
+        model = gb_grid.best_estimator_
+    
+    if scaler is None:
+        scaler = StandardScaler().fit(X)
+    
+    # Prepare features
+    X_pred = prepare_prediction_features(weather_forecast)
+    X_pred_scaled = scaler.transform(X_pred)
+    
+    # Make predictions
+    predictions = model.predict(X_pred_scaled)
+    
+    # Calculate prediction intervals using residuals
+    y_train_pred = model.predict(X_train_scaled)
+    residuals = y_train - y_train_pred
+    residual_std = np.std(residuals)
+    
+    # Create prediction DataFrame
+    results_df = pd.DataFrame({
+        'date': weather_forecast['date'],
+        'predicted_traffic_index': predictions,
+        'lower_bound': predictions - 1.96 * residual_std,
+        'upper_bound': predictions + 1.96 * residual_std
+    })
+    
+    return results_df
+
+# Example usage with sample forecast data
+if __name__ == "__main__":
+    # Create sample forecast data for next 7 days
+    last_date = df['date'].max()
+    forecast_dates = pd.date_range(start=last_date + pd.Timedelta(days=1), periods=7, freq='D')
+    
+    # Create two forecast scenarios: normal and rainy
+    # Normal scenario
+    normal_forecast = pd.DataFrame({
+        'date': forecast_dates,
+        'temperature_avg': np.random.normal(20, 5, 7),  # Sample temperatures around 20°C
+        'precipitation_mm': np.random.uniform(0, 0.1, 7),  # Very little to no rain
+        'wind_speed_kmh': np.random.normal(15, 5, 7),  # Sample wind speeds around 15 km/h
+        'pressure_hpa': np.random.normal(1013, 5, 7)  # Sample pressure around 1013 hPa
+    })
+    
+    # Rainy scenario (same conditions but with rain)
+    rainy_forecast = pd.DataFrame({
+        'date': forecast_dates,
+        'temperature_avg': normal_forecast['temperature_avg'],  # Keep same temperature
+        'precipitation_mm': np.random.uniform(5, 15, 7),  # Add significant rain (5-15mm)
+        'wind_speed_kmh': normal_forecast['wind_speed_kmh'],  # Keep same wind
+        'pressure_hpa': normal_forecast['pressure_hpa']  # Keep same pressure
+    })
+    
+    # Make predictions for both scenarios
+    normal_predictions = predict_traffic(normal_forecast)
+    rainy_predictions = predict_traffic(rainy_forecast)
+    
+    print("\nPredicted Traffic Index for Next 7 Days (Normal Conditions):")
+    print(normal_predictions.round(2))
+    
+    print("\nPredicted Traffic Index for Next 7 Days (Rainy Conditions):")
+    print(rainy_predictions.round(2))
+    
+    # Visualize predictions for both scenarios
+    plt.figure(figsize=(12, 6))
+    
+    # Plot normal conditions
+    plt.plot(normal_predictions['date'], normal_predictions['predicted_traffic_index'], 
+             'b-', label='Predicted Traffic (Normal)', alpha=0.7)
+    plt.fill_between(normal_predictions['date'], 
+                     normal_predictions['lower_bound'],
+                     normal_predictions['upper_bound'],
+                     alpha=0.1, color='b')
+    
+    # Plot rainy conditions
+    plt.plot(rainy_predictions['date'], rainy_predictions['predicted_traffic_index'], 
+             'r-', label='Predicted Traffic (Rainy)', alpha=0.7)
+    plt.fill_between(rainy_predictions['date'], 
+                     rainy_predictions['lower_bound'],
+                     rainy_predictions['upper_bound'],
+                     alpha=0.1, color='r')
+    
+    plt.title('Traffic Predictions: Normal vs Rainy Conditions')
+    plt.xlabel('Date')
+    plt.ylabel('Traffic Index')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+    # Print comparative insights
+    print("\nComparative Prediction Insights:")
+    print("Normal Conditions:")
+    print(f"Average predicted traffic index: {normal_predictions['predicted_traffic_index'].mean():.2f}")
+    print(f"Maximum predicted traffic: {normal_predictions['predicted_traffic_index'].max():.2f}")
+    print(f"Minimum predicted traffic: {normal_predictions['predicted_traffic_index'].min():.2f}")
+    
+    print("\nRainy Conditions:")
+    print(f"Average predicted traffic index: {rainy_predictions['predicted_traffic_index'].mean():.2f}")
+    print(f"Maximum predicted traffic: {rainy_predictions['predicted_traffic_index'].max():.2f}")
+    print(f"Minimum predicted traffic: {rainy_predictions['predicted_traffic_index'].min():.2f}")
+    
+    print(f"\nAverage traffic increase due to rain: "
+          f"{(rainy_predictions['predicted_traffic_index'].mean() - normal_predictions['predicted_traffic_index'].mean()):.2f}")
+
+    print("\n=== Combined Weather Effects Analysis ===")
+    plot_combined_weather_effects()
+    
+    print("\n=== Feature Importance Analysis ===")
+    plot_feature_importance()
