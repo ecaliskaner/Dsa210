@@ -1,6 +1,4 @@
 # Weather Impact on Istanbul Traffic Analysis
-# Author: [Your Name]
-# Date: [Current Date]
 # Description: This script analyzes the relationship between weather conditions
 #              and traffic patterns in Istanbul using various data science techniques.
 
