@@ -9,7 +9,7 @@ Understanding the relationship between weather conditions and traffic patterns i
 
 ## Data Sources
 1. Weather Data (Weather1.csv):
-   - Source: [Add source of weather data]
+   - Source: [(https://meteostat.net/en/station/17060?t=2025-04-11/2025-04-18&utm_source=chatgpt.com#google_vignette)]
    - Contains daily weather measurements including:
      - Temperature (min, max, average)
      - Precipitation
@@ -17,7 +17,7 @@ Understanding the relationship between weather conditions and traffic patterns i
      - Atmospheric pressure
 
 2. Traffic Data (traffic_index.csv):
-   - Source: [Add source of traffic data]
+   - Source: [https://data.ibb.gov.tr/en/dataset/istanbul-trafik-indeksi/resource/ba47eacb-a4e1-441c-ae51-0e622d4a18e2]
    - Daily traffic index measurements for Istanbul
    - Includes minimum, maximum, and average traffic indices
 
@@ -97,42 +97,20 @@ Understanding the relationship between weather conditions and traffic patterns i
      - Non-linear models
      - Neural networks
 
-## Setup and Installation
-1. Clone this repository:
-```bash
-git clone [repository-url]
-```
 
-2. Install required dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-3. Run the analysis:
-```bash
-python rainy.py
-```
 
 ## AI Assistance Disclosure
 This project utilized AI assistance for:
-- Code documentation and structure
+- Code documentation, structure and help for coding
 - README organization
 - Statistical analysis guidance
 - Visualization suggestions
-
-All core analysis, coding decisions, and interpretations were performed independently.
-
+  
 ## Project Timeline
 - March 10: Project proposal and initial setup
 - April 18: Data collection and EDA
 - May 23: Machine learning implementation
 - May 30: Final submission and documentation
-
-## License
-[Add your license information]
-
-## Contact
-[Your contact information]
 
 ## Acknowledgments
 - Data sources
@@ -147,10 +125,6 @@ Required Python packages are listed in requirements.txt:
 - matplotlib
 - scipy
 
-## AI Tool Usage Disclosure
-This project utilized AI assistance for:
-- Code documentation
-- README structure
-- Statistical analysis guidance
 
-All core analysis and coding was performed independently. 
+
+
