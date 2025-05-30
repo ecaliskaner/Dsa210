@@ -1,47 +1,156 @@
-# Impact of Weather on Traffic in Istanbul
+# Weather Impact on Istanbul Traffic Analysis
 
-## Motivation  
-Traffic congestion is a major issue in Istanbul, impacting daily life, commute times, and city efficiency. Weather conditions are often cited as a factor affecting traffic, but the exact relationship remains unclear. This project aims to analyze whether bad weather increases traffic by slowing down vehicles or if good weather leads to more congestion as people go out more. Understanding these trends could help city planners, businesses, and commuters make better decisions.
+## Motivation
+Understanding the relationship between weather conditions and traffic patterns in Istanbul is crucial for:
+- Urban planning and traffic management
+- Helping commuters make informed travel decisions
+- Improving emergency response during adverse weather conditions
+- Contributing to smart city initiatives
 
-## Data Sources  
-- **Weather Data**: [Meteostat Istanbul Weather Data](https://meteostat.net/en/station/17060?t=2025-04-11/2025-04-18&utm_source=chatgpt.com#google_vignette)  
-- **Traffic Data**: [Istanbul Traffic Index (IBB)](https://data.ibb.gov.tr/en/dataset/istanbul-trafik-indeksi/resource/ba47eacb-a4e1-441c-ae51-0e622d4a18e2)
-- **For Organizing**: [ChatGPT](https://chatgpt.com)
-- **Help for Coding**:[Cursor](https://www.cursor.com/)
+## Data Sources
+1. Weather Data (Weather1.csv):
+   - Source: [Add source of weather data]
+   - Contains daily weather measurements including:
+     - Temperature (min, max, average)
+     - Precipitation
+     - Wind speed and direction
+     - Atmospheric pressure
 
-## Data Collection & Processing  
-- Weather data (temperature, precipitation, wind speed) will be collected daily/hourly.  
-- Traffic index data from IBB will provide congestion levels over time.  
-- The datasets will be merged by timestamp for correlation analysis.  
-- Additional events (e.g., football matches) may be included to assess their impact.
+2. Traffic Data (traffic_index.csv):
+   - Source: [Add source of traffic data]
+   - Daily traffic index measurements for Istanbul
+   - Includes minimum, maximum, and average traffic indices
 
-## Analysis Plan  
-### Exploratory Data Analysis (EDA)  
-- Data cleaning, visualization, and identifying patterns.  
-- Checking seasonal trends and extreme weather effects.  
+## Data Analysis Pipeline
 
-### Statistical Analysis  
-- Correlation analysis between weather and traffic congestion.  
-- Hypothesis testing to examine the effect of different weather conditions.  
+### 1. Data Preparation
+- DateTime format standardization
+- Missing value handling:
+  - Interpolation for traffic data
+  - Mean imputation for wind speed and pressure
+  - Zero imputation for precipitation
+- Data merging and cleaning
 
-### Machine Learning Models  
-- Predictive models using regression or classification.  
-- Time series forecasting to predict congestion based on weather conditions.  
+### 2. Exploratory Data Analysis (EDA)
+- Descriptive statistics for all weather parameters
+- Distribution analysis
+- Correlation analysis between weather factors and traffic
+- Time series visualization
+- Box plots for categorical analysis
 
-## Tools & Libraries  
-- **Programming:** Python  
-- **Libraries:** Pandas, NumPy, Matplotlib  
-- **Database & Querying:** Groby  
+### 3. Statistical Analysis
+- T-tests comparing traffic patterns:
+  - Rainy vs non-rainy days
+  - Different temperature categories
+  - Different wind speed categories
+- Pearson correlation analysis
+- Statistical significance testing
 
-## Expected Outcomes  
-- Insights into how different weather conditions impact traffic.  
-- Identification of patterns affecting peak congestion times.  
-- Possible applications for traffic prediction and urban planning.  
+### 4. Machine Learning Implementation
+- Linear Regression model with:
+  - Weather parameters as features
+  - Interaction terms between rain and other factors
+  - Feature importance analysis
+- Model evaluation using:
+  - Mean Squared Error
+  - R-squared score
+  - Residual analysis
 
-## Challenges & Limitations  
-- Incomplete or inconsistent data.  
-- Other factors like roadwork, accidents, or protests affecting traffic.  
-- Behavioral effects (people avoiding travel in extreme weather).  
+## Key Findings
+1. Rain Impact:
+   - Significant increase in traffic during rainy days (+4.88 points)
+   - Stronger effect in colder temperatures
+   - Consistent across all wind conditions
 
----
+2. Temperature Effects:
+   - Inverse relationship with traffic
+   - Higher traffic in colder weather
+   - Very Cold: 29.06 average traffic
+   - Very Warm: 26.29 average traffic
 
+3. Wind Speed Impact:
+   - Slight positive correlation with traffic
+   - Strongest effect when combined with rain
+   - Very High Wind + Rain: highest traffic index (33.70)
+
+4. Combined Effects:
+   - Weather factors explain about 5% of traffic variation
+   - Most important factors:
+     1. Average temperature
+     2. Minimum temperature
+     3. Rain occurrence
+     4. Precipitation amount
+
+## Limitations and Future Work
+1. Current Limitations:
+   - Missing data in several weather parameters
+   - Daily aggregation might miss hourly patterns
+   - Limited to one city's data
+   - No consideration of special events or holidays
+
+2. Future Improvements:
+   - Include hourly data analysis
+   - Add more weather parameters (humidity, visibility)
+   - Incorporate holiday and event data
+   - Implement more advanced ML models:
+     - Time series forecasting
+     - Non-linear models
+     - Neural networks
+
+## Setup and Installation
+1. Clone this repository:
+```bash
+git clone [repository-url]
+```
+
+2. Install required dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+3. Run the analysis:
+```bash
+python rainy.py
+```
+
+## AI Assistance Disclosure
+This project utilized AI assistance for:
+- Code documentation and structure
+- README organization
+- Statistical analysis guidance
+- Visualization suggestions
+
+All core analysis, coding decisions, and interpretations were performed independently.
+
+## Project Timeline
+- March 10: Project proposal and initial setup
+- April 18: Data collection and EDA
+- May 23: Machine learning implementation
+- May 30: Final submission and documentation
+
+## License
+[Add your license information]
+
+## Contact
+[Your contact information]
+
+## Acknowledgments
+- Data sources
+- Academic advisors
+- Tools and libraries used
+
+## Dependencies
+Required Python packages are listed in requirements.txt:
+- pandas
+- numpy
+- seaborn
+- matplotlib
+- scipy
+
+## AI Tool Usage Disclosure
+This project utilized AI assistance for:
+- Code documentation
+- README structure
+- Statistical analysis guidance
+
+All core analysis and coding was performed independently. 
